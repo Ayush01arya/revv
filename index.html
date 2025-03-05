@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Traffic Analysis Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-4xl">
+        <div class="bg-white shadow-2xl rounded-xl overflow-hidden">
+            <div class="bg-blue-600 text-white p-6">
+                <h1 class="text-3xl font-bold text-center">
+                    Website Traffic Analysis Dashboard
+                </h1>
+            </div>
+
+            <div class="p-6">
+                <div class="flex mb-6">
+                    <input
+                        type="text"
+                        id="urlInput"
+                        placeholder="Enter website URL"
+                        class="flex-grow mr-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
+                    >
+                    <button
+                        id="analyzeBtn"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 active:scale-95"
+                    >
+                        Analyze
+                    </button>
+                </div>
+
+                <div
+                    id="errorContainer"
+                    class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg animate-pulse"
+                ></div>
+
+                <div id="resultsContainer" class="hidden space-y-6">
+                    <div id="domainHeader" class="text-center bg-gray-100 p-4 rounded-lg">
+                        <h2 id="domainTitle" class="text-2xl font-semibold text-gray-800"></h2>
+                    </div>
+
+                    <div
+                        id="metricsContainer"
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4"
+                    ></div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div id="keywordsContainer" class="bg-gray-50 p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-gray-700">
+                                Top Ranking Keywords
+                            </h2>
+                            <canvas id="keywordsChart" class="w-full h-64 mb-4"></canvas>
+
+                            <div id="keywordsTableContainer" class="overflow-x-auto">
+                                <table id="keywordsTable" class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-200">
+                                            <th class="py-2 px-3 text-left">Keyword</th>
+                                            <th class="py-2 px-3 text-left">Rank</th>
+                                            <th class="py-2 px-3 text-left">Traffic %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="keywordsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="backlinksContainer" class="bg-gray-50 p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-gray-700">
+                                Backlinks
+                            </h2>
+                            <div class="max-h-96 overflow-y-auto">
+                                <table id="backlinksTable" class="w-full">
+                                    <thead>
+                                        <tr class="bg-gray-200 sticky top-0">
+                                            <th class="py-2 px-3 text-left">Source URL</th>
+                                            <th class="py-2 px-3 text-left">Target URL</th>
+                                            <th class="py-2 px-3 text-left">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="backlinksBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div id="keywordIntentContainer" class="bg-gray-50 p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-gray-700">
+                                Keyword Intent Analysis
+                            </h2>
+                            <canvas id="keywordIntentChart" class="w-full h-64 mb-4"></canvas>
+                            <div id="keywordIntentTableContainer">
+                                <table id="keywordIntentTable" class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-200">
+                                            <th class="py-2 px-3 text-left">Intent Type</th>
+                                            <th class="py-2 px-3 text-left">Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="keywordIntentTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="brandedKeywordsContainer" class="bg-gray-50 p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-gray-700">
+                                Branded vs Non-Branded Keywords
+                            </h2>
+                            <canvas id="brandedKeywordsChart" class="w-full h-64 mb-4"></canvas>
+                            <div id="brandedKeywordsTableContainer">
+                                <table id="brandedKeywordsTable" class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-200">
+                                            <th class="py-2 px-3 text-left">Keyword Type</th>
+                                            <th class="py-2 px-3 text-left">Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="brandedKeywordsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlInput = document.getElementById('urlInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const errorContainer = document.getElementById('errorContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const domainTitle = document.getElementById('domainTitle');
+            const metricsContainer = document.getElementById('metricsContainer');
+            const backlinksBody = document.getElementById('backlinksBody');
+            const keywordsTableBody = document.getElementById('keywordsTableBody');
+            const keywordIntentTableBody = document.getElementById('keywordIntentTableBody');
+            const brandedKeywordsTableBody = document.getElementById('brandedKeywordsTableBody');
+            let keywordsChart = null;
+            let keywordIntentChart = null;
+            let brandedKeywordsChart = null;
+
+            const createMetricCard = (key, value) => {
+                const metricEl = document.createElement('div');
+                metricEl.className = 'bg-white border border-gray-200 p-4 rounded-lg shadow-sm hover:shadow-md transition duration-300';
+                metricEl.innerHTML = `
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">
+                        ${key.replace(/_/g, ' ')}
+                    </p>
+                    <p class="text-xl font-bold text-gray-800">${value}</p>
+                `;
+                return metricEl;
+            };
+
+            analyzeBtn.addEventListener('click', async () => {
+                // Reset previous results
+                errorContainer.classList.add('hidden');
+                resultsContainer.classList.add('hidden');
+                errorContainer.textContent = '';
+                metricsContainer.innerHTML = '';
+                backlinksBody.innerHTML = '';
+                keywordsTableBody.innerHTML = '';
+                keywordIntentTableBody.innerHTML = '';
+                brandedKeywordsTableBody.innerHTML = '';
+
+                if (keywordsChart) keywordsChart.destroy();
+                if (keywordIntentChart) keywordIntentChart.destroy();
+                if (brandedKeywordsChart) brandedKeywordsChart.destroy();
+
+                const url = urlInput.value.trim();
+                if (!url) {
+                    errorContainer.textContent = 'Please enter a valid URL';
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+
+                // Disable button and show loading state
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Analyzing...';
+                analyzeBtn.classList.add('cursor-not-allowed', 'opacity-50');
+
+                try {
+                    const response = await fetch('https://revv-tan.vercel.app/analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url }),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'An error occurred');
+                    }
+
+                    // Set domain title
+                    domainTitle.textContent = `Analysis for ${data.domain}`;
+
+                    // Display Metrics
+                    Object.entries(data.metrics).forEach(([key, value]) => {
+                        metricsContainer.appendChild(createMetricCard(key, value));
+                    });
+
+                    // Keywords Chart and Table
+                    const keywordsData = data.top_keywords.map(k => ({
+                        keyword: k.keyword,
+                        traffic: parseFloat(k.traffic_percentage),
+                        rank: k.rank
+                    }));
+
+                    // Populate Keywords Table
+                    keywordsData.forEach((keyword, index) => {
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                        row.innerHTML = `
+                            <td class="py-2 px-3 text-gray-700">${keyword.keyword}</td>
+                            <td class="py-2 px-3 text-gray-600">${keyword.rank}</td>
+                            <td class="py-2 px-3 text-gray-600">${keyword.traffic}%</td>
+                        `;
+                        keywordsTableBody.appendChild(row);
+                    });
+
+                    // Keywords Chart
+                    const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
+                    keywordsChart = new Chart(keywordsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: keywordsData.map(k => k.keyword),
+                            datasets: [{
+                                label: 'Traffic Percentage',
+                                data: keywordsData.map(k => k.traffic),
+                                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Traffic Percentage'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+
+                    // Backlinks Table
+                    data.backlinks.forEach(link => {
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-gray-200 hover:bg-gray-100 transition duration-300';
+                        row.innerHTML = `
+                            <td class="py-2 px-3 text-sm text-gray-600 truncate max-w-xs">
+                                <a href="${link.source_url}" target="_blank" class="text-blue-600 hover:underline">
+                                    ${link.source_url}
+                                </a>
+                            </td>
+                            <td class="py-2 px-3 text-sm text-gray-600 truncate max-w-xs">
+                                <a href="${link.target_url}" target="_blank" class="text-blue-600 hover:underline">
+                                    ${link.target_url}
+                                </a>
+                            </td>
+                            <td class="py-2 px-3">
+                                <div class="flex space-x-2">
+                                    <a href="${link.source_url}" target="_blank" class="text-blue-500 hover:text-blue-700 transition duration-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                                            <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        `;
+                        backlinksBody.appendChild(row);
+                    });
+
+                    // Keyword Intent Analysis
+                    const intentData = data.intent_percentages;
+                    const intentEntries = Object.entries(intentData);
+
+                    // Populate Keyword Intent Table
+                    intentEntries.forEach(([intent, percentage]) => {
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                        row.innerHTML = `
+                            <td class="py-2 px-3 text-gray-700">${intent}</td>
+                            <td class="py-2 px-3 text-gray-600">${percentage}%</td>
+                        `;
+                        keywordIntentTableBody.appendChild(row);
+                    });
+
+                    // Keyword Intent Chart
+                    const intentCtx = document.getElementById('keywordIntentChart').getContext('2d');
+                    keywordIntentChart = new Chart(intentCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: intentEntries.map(([intent]) => intent),
+                            datasets: [{
+                                data: intentEntries.map(([, percentage]) => percentage),
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Branded vs Non-Branded Keywords
+                    const brandedData = {
+                        'Branded Keywords': data.branded_percentage,
+                        'Non-Branded Keywords': data.non_branded_percentage
+                    };
+
+                    // Populate Branded Keywords Table
+                    Object.entries(brandedData).forEach(([type, percentage]) => {
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                        row.innerHTML = `
+                            <td class="py-2 px-3 text-gray-700">${type}</td>
+                            <td class="py-2 px-3 text-gray-600">${percentage}%</td>
+                        `;
+                        brandedKeywordsTableBody.appendChild(row);
+                    });
+
+                    // Branded Keywords Chart
+                    const brandedCtx = document.getElementById('brandedKeywordsChart').getContext('2d');
+                    brandedKeywordsChart = new Chart(brandedCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(brandedData),
+                            datasets: [{
+                                data: Object.values(brandedData),
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(54, 162, 235, 0.7)'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+
+                    // Show results with animation
+                    resultsContainer.classList.remove('hidden');
+                    resultsContainer.classList.add('animate-fade-in');
+
+                } catch (error) {
+                    errorContainer.textContent = error.message;
+                    errorContainer.classList.remove('hidden');
+                } finally {
+                    // Reset button state
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze';
+                    analyzeBtn.classList.remove('cursor-not-allowed', 'opacity-50');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
