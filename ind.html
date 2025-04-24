@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .hs-form-frame {
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #95a5a6;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+      // Capture referral source
+      function getReferralSource() {
+        // Check for UTM parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        const utmSource = urlParams.get('utm_source');
+        if (utmSource) return utmSource;
+        
+        // Check referrer
+        const referrer = document.referrer;
+        if (referrer.includes('google')) return 'google';
+        if (referrer.includes('linkedin')) return 'linkedin';
+        if (referrer.includes('chatgpt')) return 'chatgpt';
+        
+        return 'direct';
+      }
+      
+      // Wait for HubSpot form to load
+      window.addEventListener('message', function(event) {
+        if (event.data.type === 'hsFormCallback' && event.data.eventName === 'onFormReady') {
+          // Find hidden field and set value
+          setTimeout(() => {
+            const hiddenFields = document.querySelectorAll('input[type="hidden"]');
+            hiddenFields.forEach(field => {
+              if (field.name === 'source' || field.name === 'lead_source') {
+                field.value = getReferralSource();
+              }
+            });
+          }, 1000);
+        }
+      }, false);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Contact Us ....</h1>
+            <p class="subtitle">Fill out the form below and we'll get back to you soon.</p>
+        </header>
+
+        <div class="form-container">
+            <!-- HubSpot Form -->
+            <!-- Start of HubSpot Embed Code -->
+<script src="https://js-na2.hsforms.net/forms/embed/242618398.js" defer></script>
+<div class="hs-form-frame" data-region="na2" data-form-id="687a88e4-eaed-4b82-93d5-7c35b0c7a826" data-portal-id="242618398"></div>
+<!-- End of HubSpot Embed Code -->
+        </div>
+
+        <footer>
+            <p>© 2025 Revv Growth. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
